@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@ unit Concepts.Indy.TCP.Form;
 interface
 
 uses
-  System.SysUtils, System.Actions, System.Classes, System.ImageList,
-  Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
+  System.SysUtils, System.Actions, System.Classes,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
   Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls,
 
   Spring.Collections,
 
-  DDuce.Components.LogTree, DDuce.Components.PropertyInspector, DDuce.Logger,
+  DDuce.Components.LogTree, DDuce.Logger,
 
   zObjInspector, zObjInspTypes,
 
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdCmdTCPClient,
-  IdContext, IdIntercept, IdGlobal, IdIOHandler, IdIOHandlerSocket,
-  IdIOHandlerStack, IdCommandHandlers;
+  IdComponent, IdTCPConnection, IdTCPClient,
+  IdIntercept, IdGlobal, IdIOHandler,
+  IdIOHandlerStack, IdBaseComponent, System.ImageList, Vcl.ImgList;
 
 type
   TfrmIndyTCP = class(TForm)
@@ -94,7 +94,7 @@ type
     tsReceivedText         : TTabSheet;
     tsSentLog              : TTabSheet;
     tsSentText             : TTabSheet;
-    IdTCPClient: TIdTCPClient;
+    IdTCPClient            : TIdTCPClient;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -112,7 +112,6 @@ type
       const AStatusText: string);
     procedure IdConnectionInterceptReceive(ASender: TIdConnectionIntercept;
       var ABuffer: TIdBytes);
-
 
   private
     FLogIn     : TLogTree;
@@ -139,15 +138,13 @@ type
     procedure CreateCommandControls;
 
   protected
-    function MakeLogString(const AString: string): string;
-
     procedure LoadSettings; virtual;
     procedure SaveSettings; virtual;
 
-    procedure DoStringReceived(const AString: RawByteString); virtual;
+    procedure DoStringReceived(const AString: string); virtual;
     procedure UpdateActions; override;
     procedure UpdateControls; virtual;
-    procedure SendString(const AString: RawByteString); virtual;
+    procedure SendString(const AString: string); virtual;
 
     procedure Modified;
 
@@ -183,13 +180,11 @@ uses
   System.AnsiStrings, System.Rtti,
   Vcl.Graphics,
 
-  DDuce.Components.Factories,
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector,
 
   VirtualTrees,
 
-  Spring.Cryptography,
-
-  Concepts.Factories, Concepts.Settings;
+  Concepts.Settings;
 
 const
   // conversion from a low-level control Char to its corresponding text
@@ -238,7 +233,7 @@ begin
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
   CreateCommandControls;
   LoadSettings;
-  FInspector := TConceptFactories.CreatezObjectInspector(
+  FInspector := TzObjectInspectorFactory.Create(
     Self,
     pnlLeftTop,
     idTCPClient
@@ -246,10 +241,12 @@ begin
   FInspector.OnBeforeAddItem := FInspectorBeforeAddItem;
   FLogIn                 :=  TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
   FLogIn.DateTimeFormat  := 'hh:nn:ss.zzz';
+  FLogIn.AutoLogLevelColors := True;
   FLogIn.Images          := ilMain;
   FLogOut                := TDDuceComponents.CreateLogTree(Self, tsSentLog);
   FLogOut.Images         := ilMain;
   FLogOut.DateTimeFormat := 'hh:nn:ss.zzz';
+  FLogOut.AutoLogLevelColors := True;
   Modified;
 end;
 
@@ -368,9 +365,7 @@ end;
 procedure TfrmIndyTCP.IdConnectionInterceptReceive(
   ASender: TIdConnectionIntercept; var ABuffer: TIdBytes);
 begin
-  //ToHex()
-  //DoStringReceived(RawByteString(PAnsiChar(ABuffer)));
-  DoStringReceived(RawByteString(ToHex(ABuffer)));
+  DoStringReceived(RawByteString(PAnsiChar(ABuffer)));
   UpdateControls;
   Logger.Send('InterceptReceive', string(PAnsiChar(ABuffer)));
 end;
@@ -446,13 +441,10 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.DoStringReceived(const AString: RawByteString);
+procedure TfrmIndyTCP.DoStringReceived(const AString: string);
 begin
   if Assigned(FLogin) then
     FLogIn.Log(string(AString));
-
-
-    //MakeLogString(string(AString)));
   mmoReceivedText.DisableAlign;
   mmoReceivedText.Text :=
     mmoReceivedText.Text + AdjustLineBreaks(string(AString), tlbsCRLF);
@@ -461,51 +453,6 @@ begin
   mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
   mmoReceivedText.SelLength := 1;
 end;
-
-function TfrmIndyTCP.MakeLogString(const AString: string): string;
-const
-  LOG_FORMAT =
-    '<font-color=clSilver>' +
-    '<font-family=Consolas>' +
-    '[%s]' +
-    '</font-family>' +
-    '</font-color>';
-var
-  S : RawByteString;
-  I : Integer;
-  N : Integer;
-  C : AnsiChar;
-  K : RawByteString;
-  R : RawByteString;
-begin
-  N := Length(AString);
-  if N > 0 then
-  begin
-    SetLength(S, N);
-    for I := 1 to N do
-    begin
-      C := AnsiChar(Byte(AString[I]));
-      if Integer(C) <= $7B then // filter non-readable chars (checksum)
-        S[I] := C
-      else
-        S[I] := '#';
-    end;
-  end;
-
-  for C := Low(CTRL_TO_TEXT) to High(CTRL_TO_TEXT) do
-  begin
-    K := C;
-    R := System.AnsiStrings.Format(LOG_FORMAT, [CTRL_TO_TEXT[C]]);
-    S := System.AnsiStrings.StringReplace(S, K, R, [rfReplaceAll]);
-  end;
-
-  S := System.AnsiStrings.StringReplace(
-    S, '#', System.AnsiStrings.Format(LOG_FORMAT, ['{BCC}']), [rfReplaceAll]
-  );
-  S := System.AnsiStrings.Format('<font-family=Terminal_Ctrl+Hex><font-size=9>%s</font-size></font-family>', [S]);
-  Result := string(S);
-end;
-{$ENDREGION}
 
 {$REGION 'protected methods'}
 procedure TfrmIndyTCP.UpdateControls;
@@ -565,26 +512,22 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.SendString(const AString: RawByteString);
+procedure TfrmIndyTCP.SendString(const AString: string);
 var
   S  : string;
 begin
-  Client.IOHandler.Write(string(AString));
-
-  //DoStringReceived(Client.IOHandler.AllData);
-  FLogOut.Log(string(AString));
-  S := string(Trim(AString));
+  Client.IOHandler.Write(AString + #13#10);
+  FLogOut.Log(AString);
+  S := Trim(AString);
   if cbxSent.Items.IndexOf(S) = -1 then
     cbxSent.Items.Add(S);
   mmoSentText.Lines.Add(string(AString));
 
   if Client.IOHandler.CheckForDataOnSource then
   begin
-    Client.IOHandler.WaitFor(#0, True, False, IndyTextEncoding_ASCII, 200);
+    Client.IOHandler.WaitFor(#13#10, True, False, IndyTextEncoding_ASCII, 2);
+    //DoStringReceived(Client.IOHandler.AllData);
   end;
-    //DoStringReceived();
-
-
 end;
 {$ENDREGION}
 

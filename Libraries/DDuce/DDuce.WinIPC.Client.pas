@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.WinIPC.Client;
 
 interface
@@ -22,21 +24,51 @@ uses
   Winapi.Windows,
   System.Classes, System.SysUtils;
 
-  { IPC using WM_COPYDATA messages. }
+  { IPC using WM_COPYDATA messages. A TWinIPCClient is used to send WM_COPYDATA
+    messages to the corresponding TWinIPCServer. }
+
 type
   TWinIPCClient = class
-  strict protected
+  private
+    FServerProcessId          : Integer;
+    FServerThreadId           : Integer;
+    FServerMsgWindowClassName : string;
+    FServerWindowName         : string;
+
+  protected
+    {$REGION 'property access methods'}
+    function GetServerProcessId: Integer;
+    function GetServerThreadId: Integer;
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
     function GetServerHandle: THandle;
+    {$ENDREGION}
+
+  public
+    procedure AfterConstruction; override;
+    constructor Create(
+      const AServerMsgWindowClassName : string = '';
+      const AServerWindowName         : string = ''
+    );
+
+    function Connect: Boolean;
+
+    procedure SendStream(AStream: TStream);
+
+    property ServerMsgWindowClassName: string
+      read FServerMsgWindowClassName write FServerMsgWindowClassName;
+
+    property ServerWindowName: string
+      read FServerWindowName write FServerWindowName;
 
     property ServerHandle: THandle
       read GetServerHandle;
 
-  public
-    function Connect: Boolean;
+    property ServerProcessId: Integer
+      read GetServerProcessId;
 
-    procedure SendStream(AStream: TStream);
+    property ServerThreadId: Integer
+      read GetServerThreadId;
 
     property Connected: Boolean
       read GetConnected write SetConnected;
@@ -56,6 +88,25 @@ const
 resourcestring
   SServerNotActive = 'Server with ID %s is not active.';
 
+{$REGION 'construction and destruction'}
+constructor TWinIPCClient.Create(const AServerMsgWindowClassName,
+  AServerWindowName: string);
+begin
+  inherited Create;
+  FServerMsgWindowClassName := AServerMsgWindowClassName;
+  FServerWindowName         := AServerWindowName;
+end;
+
+procedure TWinIPCClient.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  if FServerMsgWindowClassName.IsEmpty then
+    FServerMsgWindowClassName := MSG_WND_CLASSNAME;
+  if FServerWindowName.IsEmpty then
+    FServerWindowName := SERVER_WINDOWNAME;
+end;
+{$ENDREGION}
+
 {$REGION 'property access methods'}
 function TWinIPCClient.GetConnected: Boolean;
 begin
@@ -70,7 +121,17 @@ end;
 
 function TWinIPCClient.GetServerHandle: THandle;
 begin
-  Result := FindWindow(MSG_WND_CLASSNAME, SERVER_WINDOWNAME);
+  Result := FindWindow(PChar(ServerMsgWindowClassName), PChar(ServerWindowName));
+end;
+
+function TWinIPCClient.GetServerProcessId: Integer;
+begin
+  Result := FServerProcessId;
+end;
+
+function TWinIPCClient.GetServerThreadId: Integer;
+begin
+  Result := FServerThreadId;
 end;
 {$ENDREGION}
 
@@ -78,7 +139,27 @@ end;
 function TWinIPCClient.Connect: Boolean;
 begin
   Result := ServerHandle <> 0;
+  if Result then
+  begin
+    FServerThreadId := GetWindowThreadProcessId(
+      HWND(ServerHandle),
+      Cardinal(FServerProcessId)
+    );
+  end
+  else
+  begin
+    FServerThreadId  := 0;
+    FServerProcessId := 0;
+  end;
 end;
+
+{ Sends a stream of data as a WM_COPY message through a TCopyDataStruct
+  instance by assigning the data as follows:
+
+    dwData: gets the current process ID.
+    cbData: length in bytes of the datbuffer.
+    lpData: pointer to buffer to send (cbData bytes in size).
+}
 
 procedure TWinIPCClient.SendStream(AStream: TStream);
 var
@@ -104,6 +185,7 @@ begin
         FreeAndNil(MS);
       end;
     end;
+    CDS.dwData := GetCurrentProcessId;
     CDS.lpData := Data.Memory;
     CDS.cbData := Data.Size;
     Winapi.Windows.SendMessage(

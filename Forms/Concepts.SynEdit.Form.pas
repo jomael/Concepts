@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -65,29 +65,21 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   System.TypInfo, System.Rtti,
 
-  DDuce.Components.Factories, DDuce.Logger,
-
-  Concepts.Factories, Concepts.Utils;
-
-{$R *.dfm}
+  DDuce.Factories.zObjInspector, DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 procedure TfrmSynEdit.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
-
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := seMain;
-//  FObjectInspector.ExpandAll;
-
 end;
 {$ENDREGION}
 

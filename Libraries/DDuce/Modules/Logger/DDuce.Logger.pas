@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,26 +14,35 @@
   limitations under the License.
 }
 
-unit DDuce.Logger;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger;
 
 interface
 
-{ A global logger singleton for shared usage }
+{ A global logger singleton for shared usage. }
 
 uses
   DDuce.Logger.Interfaces;
 
-var
-  Logger: ILogger;
+function Logger(const ALogLevel: Byte = 0): ILogger;
 
 implementation
 
 uses
   DDuce.Logger.Base;
 
+var
+  FLogger: ILogger;
+
+function Logger(const ALogLevel: Byte): ILogger;
+begin
+  if Assigned(FLogger) then
+    FLogger.LogLevel := ALogLevel;
+  Result := FLogger;
+end;
+
 initialization
-  Logger := TLogger.Create;
+  FLogger := TLogger.Create;
 
 end.

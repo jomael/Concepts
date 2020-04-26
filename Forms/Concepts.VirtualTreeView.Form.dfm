@@ -11,6 +11,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
@@ -45,98 +46,203 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    object vstMain: TVirtualStringTree
+    object splHorizontal: TSplitter
+      Left = 0
+      Top = 288
+      Width = 1005
+      Height = 8
+      Cursor = crVSplit
+      Align = alTop
+      ExplicitTop = 287
+    end
+    object pnlColumnSettings: TGridPanel
+      Left = 0
+      Top = 296
+      Width = 1005
+      Height = 335
+      Align = alClient
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end
+        item
+          Value = 14.285714285714290000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = pnlCol0
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = pnlCol1
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = pnlCol2
+          Row = 0
+        end
+        item
+          Column = 3
+          Control = pnlCol3
+          Row = 0
+        end
+        item
+          Column = 4
+          Control = pnlCol4
+          Row = 0
+        end
+        item
+          Column = 5
+          Control = pnlCol5
+          Row = 0
+        end
+        item
+          Column = 6
+          Control = pnlCol6
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          SizeStyle = ssAbsolute
+          Value = 20.000000000000000000
+        end
+        item
+          Value = 100.000000000000000000
+        end>
+      TabOrder = 0
+      object pnlCol0: TPanel
+        Left = 0
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+      end
+      object pnlCol1: TPanel
+        Left = 143
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+      end
+      object pnlCol2: TPanel
+        Left = 286
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+      end
+      object pnlCol3: TPanel
+        Left = 429
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 3
+      end
+      object pnlCol4: TPanel
+        Left = 572
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 4
+      end
+      object pnlCol5: TPanel
+        Left = 715
+        Top = 0
+        Width = 143
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 5
+      end
+      object pnlCol6: TPanel
+        Left = 858
+        Top = 0
+        Width = 147
+        Height = 20
+        Align = alClient
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 6
+      end
+    end
+    object pnlTreeView: TPanel
       Left = 0
       Top = 0
       Width = 1005
-      Height = 631
-      Align = alClient
-      Header.AutoSizeIndex = -1
-      Header.Font.Charset = DEFAULT_CHARSET
-      Header.Font.Color = clWindowText
-      Header.Font.Height = -11
-      Header.Font.Name = 'Tahoma'
-      Header.Font.Style = [fsBold]
-      Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoShowHint, hoShowImages, hoShowSortGlyphs, hoVisible, hoAutoSpring]
-      TabOrder = 0
-      TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
-      TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
-      TreeOptions.SelectionOptions = [toExtendedFocus, toFullRowSelect, toMultiSelect, toRestoreSelection]
-      OnAfterCellPaint = vstMainAfterCellPaint
-      OnChange = vstMainChange
-      OnDblClick = vstMainDblClick
-      OnExpanded = vstMainExpanded
-      OnExpanding = vstMainExpanding
-      OnFocusChanged = vstMainFocusChanged
-      OnFocusChanging = vstMainFocusChanging
-      OnFreeNode = vstMainFreeNode
-      OnGetText = vstMainGetText
-      OnGetImageIndex = vstMainGetImageIndex
-      OnGetHint = vstMainGetHint
-      OnGetNodeDataSize = vstMainGetNodeDataSize
-      OnHeaderDraw = vstMainHeaderDraw
-      OnHeaderDrawQueryElements = vstMainHeaderDrawQueryElements
-      OnInitChildren = vstMainInitChildren
-      OnInitNode = vstMainInitNode
-      OnMouseUp = vstMainMouseUp
-      Columns = <
-        item
-          Color = clWhite
-          MaxWidth = 200
-          MinWidth = 100
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus, coEditable]
-          Position = 0
-          Width = 200
-          WideText = 'FirstName'
-        end
-        item
-          MaxWidth = 200
-          MinWidth = 100
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 1
-          Width = 100
-          WideText = 'LastName'
-        end
-        item
-          MaxWidth = 200
-          MinWidth = 100
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 2
-          Width = 100
-          WideText = 'Email'
-        end
-        item
-          MaxWidth = 400
-          MinWidth = 100
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 3
-          Width = 100
-          WideText = 'CompanyName'
-        end
-        item
-          MaxWidth = 400
-          MinWidth = 100
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 4
-          Width = 100
-          WideText = 'Address'
-        end
-        item
-          MaxWidth = 200
-          MinWidth = 70
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 5
-          Width = 70
-          WideText = 'Number'
-        end
-        item
-          MaxWidth = 200
-          MinWidth = 70
-          Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus, coEditable]
-          Position = 6
-          Width = 200
-          WideText = 'Active'
-        end>
+      Height = 288
+      Align = alTop
+      BevelOuter = bvNone
+      TabOrder = 1
     end
   end
   object pnlHeader: TPanel
@@ -149,12 +255,15 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Color = clWhite
     ParentBackground = False
     TabOrder = 3
+    DesignSize = (
+      1342
+      28)
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 1342
+      Width = 1041
       Height = 28
-      Align = alClient
+      Align = alLeft
       Alignment = taCenter
       AutoSize = False
       Caption = 'This form demonstrates the TVirtualStringTree control.'
@@ -167,8 +276,33 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       ParentFont = False
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 799
-      ExplicitHeight = 26
+    end
+    object lblFocusedNode: TLabel
+      Left = 1257
+      Top = 7
+      Width = 75
+      Height = 13
+      Anchors = [akTop, akRight]
+      AutoSize = False
+      Caption = 'lblFocusedNode'
+      Layout = tlCenter
+    end
+    object btnAutoSizeColumns: TButton
+      Left = 1052
+      Top = 2
+      Width = 185
+      Height = 25
+      Action = actAutoSizeColumns
+      Anchors = [akTop, akRight]
+      TabOrder = 0
+    end
+  end
+  object aclMain: TActionList
+    Left = 664
+    Top = 344
+    object actAutoSizeColumns: TAction
+      Caption = 'AutoSizeColumns'
+      OnExecute = actAutoSizeColumnsExecute
     end
   end
 end

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,15 +31,15 @@ uses
 
 type
   TfrmMulticastEvents = class(TForm)
-    lblImageIndex : TLabel;
-    pnlImageIndex : TPanel;
-    pbrPosition   : TProgressBar;
     aclMain       : TActionList;
     actExecute    : TAction;
     btnExecute    : TButton;
+    lblHeader     : TLabel;
+    lblImageIndex : TLabel;
+    pbrPosition   : TProgressBar;
+    pnlHeader     : TPanel;
+    pnlImageIndex : TPanel;
     trbImageIndex : TTrackBar;
-    pnlHeader: TPanel;
-    lblHeader: TLabel;
 
     procedure actExecuteExecute(Sender: TObject);
 

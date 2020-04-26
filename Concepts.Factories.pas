@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,20 +35,16 @@ uses
   DSharp.Core.DataTemplates, DSharp.Windows.CustomPresenter,
   DSharp.Windows.ColumnDefinitions,
   {$IFDEF DEVEXPRESS}
-  DSharp.DevExpress.GridViewPresenter, DSharp.DevExpress.PresenterDataSource,
+  DSharp.DevExpress.GridViewPresenter,
   DSharp.DevExpress.TreeListPresenter,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
-  cxGridCustomView, cxTL, cxTLData,
+  cxGridCustomView, cxTLData,
   {$ENDIF}
 
   {$IFDEF BCEDITOR}
   BCEditor.Editor.Base, BCEditor.Editor,
-  {$ENDIF}
-
-  {$IFDEF ZOBJECTINSPECTOR}
-  zObjInspector,
   {$ENDIF}
 
   Concepts.Types.Contact;
@@ -129,15 +125,6 @@ type
       const AHighlighter : string = '';
       const AColorMap    : string = ''
     ): TBCEditor; static;
-    {$ENDIF}
-
-    {$IFDEF ZOBJECTINSPECTOR}
-    class function CreatezObjectInspector(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      AObject     : TObject = nil;
-      const AName : string = ''
-    ): TzObjectInspector; static;
     {$ENDIF}
   end;
 
@@ -475,24 +462,6 @@ begin
   VST.TreeOptions.AutoOptions      := DEFAULT_VST_AUTOOPTIONS;
   Result := VST;
 end;
-
-{$IFDEF ZOBJECTINSPECTOR}
-class function TConceptFactories.CreatezObjectInspector(AOwner: TComponent;
-  AParent: TWinControl; AObject: TObject; const AName: string): TzObjectInspector;
-var
-  OI: TzObjectInspector;
-begin
-  OI                  := TzObjectInspector.Create(AOwner);
-  OI.Parent           := AParent;
-  OI.Align            := alClient;
-  OI.AlignWithMargins := True;
-  OI.Name             := AName;
-  OI.Component        := AObject;
-  OI.SplitterPos      := OI.ClientWidth div 2;
-  OI.ObjectVisibility := mvPublished;
-  Result := OI;
-end;
-{$ENDIF}
 
 {$IFDEF BCEDITOR}
 class function TConceptFactories.CreateBCEditor(AOwner: TComponent;

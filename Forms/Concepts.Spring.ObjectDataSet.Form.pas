@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -120,11 +120,13 @@ type
     FObjectDataSet : TObjectDataset;
     FBindScope     : TBindScope;
 
+    {$REGION 'property access methods'}
     function GetDataSet: TDataSet;
     function GetDataSetEnabled: Boolean;
     function GetPresenterEnabled: Boolean;
     procedure SetDataSetEnabled(const Value: Boolean);
     procedure SetPresenterEnabled(const Value: Boolean);
+    {$ENDREGION}
 
     procedure FillList;
     procedure DisconnectPresenter;
@@ -156,9 +158,11 @@ implementation
 uses
   System.SysUtils, System.Bindings.Helper,
 
+  DDuce.ObjectInspector.zObjectInspector, DDuce.Utils,
+
   DSharp.Windows.ColumnDefinitions,
 
-  Concepts.Factories, Concepts.Utils, Concepts.ComponentInspector;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmObjectDataSet.AfterConstruction;

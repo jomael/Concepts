@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
    - OnGetCellColors was not triggered anymore
 }
 
-unit DDuce.Components.Inspector;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.Inspector;
 
 interface
 
@@ -223,7 +223,9 @@ procedure TInspectorEdit.Invalidate;
 begin
   inherited Invalidate;
   if Assigned(Grid) then
+  begin
     Grid.InvalidateFocus;
+  end;
 end;
 {$ENDREGION}
 
@@ -459,6 +461,8 @@ begin
 end;
 
 procedure TCustomInspector.PaintCell(ACell: TGridCell; ARect: TRect);
+//var
+//  R : TRect;
 begin
   if IsCategoryRow(ACell.Row) then
   begin
@@ -499,15 +503,15 @@ begin
 
 //  if ACell.Row = CellFocused.Row then
 //  begin
-//    //DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
+//    DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
 //  end
 //  else if ACell.Row = CellFocused.Row - 1 then
 //  begin
 //    R := ARect;
 //    R.Top := R.Bottom - 2;
-////    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
-////    InflateRect(R, 0, -1);
-////    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
+//    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
+//    InflateRect(R, 0, -1);
+//    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
 //  end;
 end;
 

@@ -1,18 +1,25 @@
 object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspector
   Left = 0
   Top = 0
+  Width = 400
+  Height = 686
+  AlphaBlend = True
+  AutoScroll = True
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
-  ClientHeight = 647
-  ClientWidth = 392
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesigned
+  PopupMode = pmAuto
+  Position = poDefault
   ScreenSnap = True
+  ShowHint = True
+  SnapBuffer = 20
   OnActivate = FormActivate
   OnClose = FormClose
   OnResize = FormResize
@@ -22,7 +29,7 @@ object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspe
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 392
+    Width = 384
     Height = 647
     Align = alClient
     BevelOuter = bvNone
@@ -31,12 +38,24 @@ object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspe
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 386
+      Width = 378
       Height = 21
       Margins.Bottom = 0
       Align = alTop
       TabOrder = 0
       OnChange = cbxInspectorChange
+    end
+  end
+  object aclMain: TActionList
+    Left = 192
+    Top = 328
+    object actExpandAll: TAction
+      Caption = 'Expand all'
+      OnExecute = actExpandAllExecute
+    end
+    object actCollapseAll: TAction
+      Caption = 'Collapse all'
+      OnExecute = actCollapseAllExecute
     end
   end
 end

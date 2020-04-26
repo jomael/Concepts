@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -310,6 +310,14 @@ type
     property OnPropertyChanged: IEvent<TPropertyChangedEvent> read GetOnPropertyChanged;
   end;
 
+  TKeyList<TKey> = class(TList<TKey>)
+  private
+    fComparer: IEqualityComparer<TKey>;
+  public
+    constructor Create(const comparer: IEqualityComparer<TKey>);
+    function IndexOf(const item: TKey; index, count: Integer): Integer; override;
+  end;
+
 implementation
 
 uses
@@ -605,6 +613,7 @@ var
   oldItems: TArray<T>;
   tailCount,
   i: Integer;
+  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index < fCount), 'index');
@@ -630,18 +639,26 @@ begin
   Dec(fCount, count);
 
   if doClear then
-    Changed(Default(T), caReseted);
+  begin
+    // workaround for RSP-20683
+    defaultItem := Default(T);
+    Changed(defaultItem, caReseted);
+  end;
 
   for i := Low(oldItems) to High(oldItems) do
     Changed(oldItems[i], caRemoved);
 end;
 
 procedure TList<T>.Sort(const comparer: IComparer<T>; index, count: Integer);
+var
+  defaultItem: T;
 begin
   IncUnchecked(fVersion);
   TArray.Sort<T>(fItems, comparer, index, count);
 
-  Changed(Default(T), caReseted);
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Changed(defaultItem, caReseted);
 end;
 
 procedure TList<T>.Move(currentIndex, newIndex: Integer);
@@ -652,6 +669,9 @@ begin
   Guard.CheckRange((currentIndex >= 0) and (currentIndex < fCount), 'currentIndex');
   Guard.CheckRange((newIndex >= 0) and (newIndex < fCount), 'newIndex');
 {$ENDIF}
+
+  if currentIndex = newIndex then
+    Exit;
 
   temp := fItems[currentIndex];
 
@@ -736,6 +756,8 @@ begin
 end;
 
 procedure TList<T>.Reverse(index, count: Integer);
+var
+  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange(index >= 0, 'index');
@@ -745,7 +767,9 @@ begin
   IncUnchecked(fVersion);
   TArray.Reverse<T>(fItems, index, count);
 
-  Changed(Default(T), caReseted);
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Changed(defaultItem, caReseted);
 end;
 
 procedure TList<T>.SetCapacity(value: Integer);
@@ -949,7 +973,7 @@ begin
   if Result > 0 then
   begin
     // If the new item is smaller than the last one in the list ...
-    if fComparer.Compare(item, fItems[Result - 1]) < 0 then
+    if fComparer.Compare(fItems[Result - 1], item) > 0 then
       // ... search for the correct insertion point
       TArray.BinarySearch<T>(fItems, item, Result, fComparer, 0, fCount);
   end;
@@ -1133,6 +1157,7 @@ procedure TCollectionList<T>.DeleteRangeInternal(index, count: Integer;
 var
   oldItems: array of T;
   i: Integer;
+  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index < Self.Count), 'index');
@@ -1152,7 +1177,11 @@ begin
   end;
 
   if doClear then
-    Changed(Default(T), caReseted);
+  begin
+    // workaround for RSP-20683
+    defaultItem := Default(T);
+    Changed(defaultItem, caReseted);
+  end;
 
   for i := Low(oldItems) to High(oldItems) do
   begin
@@ -1548,6 +1577,25 @@ begin
 
   inherited Changed(value, action);
   DoPropertyChanged('Count');
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TKeyList<TKey>'}
+
+constructor TKeyList<TKey>.Create(const comparer: IEqualityComparer<TKey>);
+begin
+  inherited Create;
+  fComparer := comparer;
+  if fComparer = nil then
+    fComparer := TEqualityComparer<TKey>.Default;
+end;
+
+function TKeyList<TKey>.IndexOf(const item: TKey; index,
+  count: Integer): Integer;
+begin
+  Result := TArray.IndexOf<TKey>(fItems, item, index, count, fComparer);
 end;
 
 {$ENDREGION}

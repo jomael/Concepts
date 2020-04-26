@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions,
 
-  DDuce.Factories, DDuce.Editor.ViewList.Data;
+  DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees, DDuce.Editor.ViewList.Data;
 
 resourcestring
   SFileName    = 'Filename';
@@ -80,7 +80,7 @@ resourcestring
 procedure TfrmViewList.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TFactories.CreateVirtualStringTree(Self, pnlVST);
+  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlVST);
   FTVP := TTreeViewPresenter.Create(Self);
   //FTVP.MultiSelect := True;
   with FTVP.ColumnDefinitions.Add(SFileName, 200) do

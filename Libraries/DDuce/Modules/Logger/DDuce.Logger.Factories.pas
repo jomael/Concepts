@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Factories;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Factories;
 
 interface
 
@@ -26,30 +26,43 @@ uses
 type
   TLoggerFactories = class sealed
     class function CreateLogger: ILogger;
-    class function CreateWinIPCChannel: ILogChannel;
-    class function CreateZeroMQChannel: ILogChannel;
+    class function CreateWinIPCChannel: IWinIPCChannel;
+    class function CreateZeroMQChannel: IZeroMQChannel;
+    class function CreateMQTTChannel: IMQTTChannel;
+    class function CreateLogFileChannel(AFileName: string = ''): ILogFileChannel;
 
   end;
 
 implementation
 
 uses
-  DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC,
-  DDuce.Logger.Channels.ZeroMQ;
+  DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC, DDuce.Logger.Channels.ZeroMQ,
+  {DDuce.Logger.Channels.MQTT,} DDuce.Logger.Channels.LogFile;
 
 class function TLoggerFactories.CreateLogger: ILogger;
 begin
   Result := TLogger.Create;
 end;
 
-class function TLoggerFactories.CreateWinIPCChannel: ILogChannel;
+class function TLoggerFactories.CreateMQTTChannel: IMQTTChannel;
+begin
+//  Result := TMQTTChannel.Create;
+end;
+
+class function TLoggerFactories.CreateWinIPCChannel: IWinIPCChannel;
 begin
   Result := TWinIPCChannel.Create;
 end;
 
-class function TLoggerFactories.CreateZeroMQChannel: ILogChannel;
+class function TLoggerFactories.CreateZeroMQChannel: IZeroMQChannel;
 begin
   Result := TZeroMQChannel.Create;
+end;
+
+class function TLoggerFactories.CreateLogFileChannel(AFileName: string)
+  : ILogFileChannel;
+begin
+  Result := TLogFileChannel.Create(AFileName);
 end;
 
 end.

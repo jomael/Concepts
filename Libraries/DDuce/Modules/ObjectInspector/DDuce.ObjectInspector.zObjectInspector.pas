@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,25 +14,29 @@
   limitations under the License.
 }
 
-unit DDuce.ObjectInspector.zObjectInspector;
+{$I DDuce.inc}
 
-//{$I ..\DDuce.inc}
+unit DDuce.ObjectInspector.zObjectInspector;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Contnrs,
+  System.Actions,
 
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls,
+  Vcl.ExtCtrls, Vcl.ActnList,
 
   zObjInspector, zObjInspTypes;
 
 type
   TfrmComponentInspectorzObjectInspector = class(TForm)
-    pnlMain      : TPanel;
-    cbxInspector : TComboBox;
+    pnlMain        : TPanel;
+    cbxInspector   : TComboBox;
+    aclMain        : TActionList;
+    actExpandAll   : TAction;
+    actCollapseAll : TAction;
 
     procedure cbxInspectorChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -40,28 +44,26 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FormShow(Sender: TObject);
 
+    procedure actExpandAllExecute(Sender: TObject);
+    procedure actCollapseAllExecute(Sender: TObject);
+
   private
     FObjectInspector : TzObjectInspector;
     FObjectHost      : TzObjectHost;
 
     procedure CMDialogKey(var Msg: TCMDialogKey); message CM_DIALOGKEY;
 
-    function FObjectInspectorBeforeAddItem(
-      Sender : TControl;
-      PItem  : PPropItem
-    ): Boolean;
-
   public
     constructor Create(
       AOwner  : TComponent;
       AObject : TObject
     ); reintroduce;
+    procedure BeforeDestruction; override;
 
-    procedure CreatePropertyInspector;
+    procedure CreateObjectInspector;
 
     procedure AddComponentToInspector(AComponent: TObject); virtual;
     procedure FocusComponentInInspector(AComponent: TObject); virtual;
-    procedure BeforeDestruction; override;
   end;
 
 procedure InspectComponent(AComponent : TComponent);
@@ -78,12 +80,12 @@ procedure InspectComponents(AComponents : TComponentList); overload;
 
 implementation
 
-uses
-  System.Rtti,
-
-  DDuce.Factories;
-
 {$R *.dfm}
+
+uses
+  System.Rtti, System.TypInfo,
+
+  DDuce.Factories.zObjInspector;
 
 {$REGION 'interfaced routines'}
 procedure InspectComponent(AComponent : TComponent);
@@ -92,7 +94,10 @@ var
 begin
   if Assigned(AComponent) then
   begin
-    InspectorForm := TfrmComponentInspectorzObjectInspector.Create(Application, AComponent);
+    InspectorForm := TfrmComponentInspectorzObjectInspector.Create(
+      Application,
+      AComponent
+    );
     InspectorForm.Show;
   end
   else
@@ -190,7 +195,7 @@ end;
 constructor TfrmComponentInspectorzObjectInspector.Create(AOwner: TComponent; AObject: TObject);
 begin
   inherited Create(AOwner);
-  CreatePropertyInspector;
+  CreateObjectInspector;
   AddComponentToInspector(AObject);
   FocusComponentInInspector(AObject);
 end;
@@ -216,62 +221,17 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'private methods'}
-procedure TfrmComponentInspectorzObjectInspector.CreatePropertyInspector;
+{$REGION 'action handlers'}
+procedure TfrmComponentInspectorzObjectInspector.actCollapseAllExecute(
+  Sender: TObject);
 begin
-  FObjectInspector := TFactories.CreatezObjectInspector(Self, pnlMain);
-  FObjectHost      := TzObjectHost.Create;
-  FObjectInspector.Component       := FObjectHost;
-  FObjectInspector.SplitterPos     := FObjectInspector.Width div 2;
-  FObjectInspector.SortByCategory  := False;
-  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
-end;
-{$ENDREGION}
-
-{$REGION 'public methods'}
-procedure TfrmComponentInspectorzObjectInspector.AddComponentToInspector(
-  AComponent: TObject);
-var
-  S     : string;
-  sName : string;
-  CI    : TCollectionItem;
-begin
-  if AComponent is TComponent then
-  begin
-    sName := TComponent(AComponent).Name;
-    if sName = '' then
-      sName := 'unnamed';
-    S := Format('%s - %s', [sName, AComponent.ClassName]);
-    cbxInspector.Items.AddObject(S, AComponent);
-  end
-  else
-  if AComponent is TCollection then
-  begin
-    for CI in TCollection(AComponent) do
-    begin
-        S := Format('%s[%d]', [CI.ClassName,
-          (CI as TCollectionItem).Index]);
-      cbxInspector.Items.AddObject(S, CI);
-    end;
-  end
-  else
-  begin
-    S := Format('%s', [AComponent.ClassName]);
-    cbxInspector.Items.AddObject(S, AComponent);
-  end;
+  FObjectInspector.CollapseAll;
 end;
 
-function TfrmComponentInspectorzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
-  PItem: PPropItem): Boolean;
+procedure TfrmComponentInspectorzObjectInspector.actExpandAllExecute(
+  Sender: TObject);
 begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
-end;
-
-procedure TfrmComponentInspectorzObjectInspector.FocusComponentInInspector(
-  AComponent: TObject);
-begin
-  cbxInspector.ItemIndex := cbxInspector.Items.IndexOfObject(AComponent);
-  cbxInspectorChange(cbxInspector);
+  FObjectInspector.ExpandAll;
 end;
 {$ENDREGION}
 
@@ -308,13 +268,71 @@ end;
 
 procedure TfrmComponentInspectorzObjectInspector.FormResize(Sender: TObject);
 begin
-  FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
+  if Assigned(FObjectInspector) then
+  begin
+    FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
+  end;
 end;
 
 procedure TfrmComponentInspectorzObjectInspector.FormShow(Sender: TObject);
 begin
   Height := Screen.WorkAreaHeight;
+  Width  := 400;
+  Left   := Screen.WorkAreaLeft;
+  Top    := Screen.WorkAreaTop;
 end;
 {$ENDREGION}
 
+{$REGION 'private methods'}
+procedure TfrmComponentInspectorzObjectInspector.CreateObjectInspector;
+begin
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlMain);
+  FObjectHost      := TzObjectHost.Create;
+  FObjectInspector.Component        := FObjectHost;
+  FObjectInspector.SplitterPos      := FObjectInspector.Width div 2;
+  FObjectInspector.SortByCategory   := False;
+  FObjectInspector.ObjectVisibility := mvPublic;
+end;
+{$ENDREGION}
+
+{$REGION 'public methods'}
+procedure TfrmComponentInspectorzObjectInspector.AddComponentToInspector(
+  AComponent: TObject);
+var
+  S     : string;
+  sName : string;
+  CI    : TCollectionItem;
+begin
+  if AComponent is TComponent then
+  begin
+    sName := TComponent(AComponent).Name;
+    if sName = '' then
+      sName := 'unnamed';
+    S := Format('%s - %s', [sName, AComponent.ClassName]);
+    cbxInspector.Items.AddObject(S, AComponent);
+  end
+  else
+  if AComponent is TCollection then
+  begin
+    for CI in TCollection(AComponent) do
+    begin
+        S := Format('%s[%d]', [CI.ClassName,
+          (CI as TCollectionItem).Index]);
+      cbxInspector.Items.AddObject(S, CI);
+    end;
+  end
+  else
+  begin
+    S := Format('%s', [AComponent.ClassName]);
+    cbxInspector.Items.AddObject(S, AComponent);
+  end;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.FocusComponentInInspector(
+  AComponent: TObject);
+begin
+  cbxInspector.ItemIndex := cbxInspector.Items.IndexOfObject(AComponent);
+  cbxInspectorChange(cbxInspector);
+end;
+{$ENDREGION}
 end.

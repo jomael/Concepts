@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -100,7 +100,6 @@ type
       PItem  : PPropItem
     ): Boolean;
 
-
     procedure CreateColumnDefinitionsView;
 
   public
@@ -115,6 +114,8 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
   DSharp.Windows.ControlTemplates,
+
+  DDuce.Factories.zObjInspector,
 
   Concepts.Factories;
 
@@ -134,7 +135,7 @@ begin
   );
   FTVP.View.ItemTemplate :=
     TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop);
+  FOI := TzObjectInspectorFactory.Create(Self, pnlLeftTop);
   FOI.OnBeforeAddItem := FOIBeforeAddItem;
   FOI.OnItemSetValue  := FOIItemSetValue;
   FOI.Component       := FTVP;
@@ -225,6 +226,7 @@ begin
     TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList);
   FTVPColumns.SelectionMode := smSingle;
   FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
 end;
 {$ENDREGION}
 

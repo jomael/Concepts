@@ -53,8 +53,6 @@ object frmIndyTCP: TfrmIndyTCP
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = -3
-      ExplicitTop = 3
       object pnlLeftTopTop: TPanel
         Left = 0
         Top = 0
@@ -152,10 +150,6 @@ object frmIndyTCP: TfrmIndyTCP
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -252,9 +246,9 @@ object frmIndyTCP: TfrmIndyTCP
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Sent'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -325,7 +319,7 @@ object frmIndyTCP: TfrmIndyTCP
         Top = 26
         Width = 621
         Height = 230
-        ActivePage = tsSentLog
+        ActivePage = tsSentText
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -356,10 +350,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -367,10 +357,10 @@ object frmIndyTCP: TfrmIndyTCP
             Height = 202
             Align = alClient
             BorderStyle = bsNone
-            Font.Charset = DEFAULT_CHARSET
+            Font.Charset = OEM_CHARSET
             Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Consolas'
+            Font.Height = -12
+            Font.Name = 'Terminal_Ctrl+Hex'
             Font.Style = []
             Lines.Strings = (
               '')
@@ -406,9 +396,9 @@ object frmIndyTCP: TfrmIndyTCP
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Received'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -440,7 +430,7 @@ object frmIndyTCP: TfrmIndyTCP
         Top = 26
         Width = 621
         Height = 270
-        ActivePage = tsReceivedLog
+        ActivePage = tsReceivedText
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -471,10 +461,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -482,10 +468,10 @@ object frmIndyTCP: TfrmIndyTCP
             Height = 242
             Align = alClient
             BorderStyle = bsNone
-            Font.Charset = DEFAULT_CHARSET
+            Font.Charset = OEM_CHARSET
             Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Consolas'
+            Font.Height = -12
+            Font.Name = 'Terminal_Ctrl+Hex'
             Font.Style = []
             Lines.Strings = (
               '')
@@ -835,7 +821,7 @@ object frmIndyTCP: TfrmIndyTCP
   end
   object IdConnectionIntercept: TIdConnectionIntercept
     OnReceive = IdConnectionInterceptReceive
-    Left = 208
+    Left = 112
     Top = 48
   end
   object IdTCPClient: TIdTCPClient

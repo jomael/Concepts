@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.DBGrids,
   Data.DB,
 
   SQLiteTable3,
@@ -32,20 +32,16 @@ uses
   Spring.Persistence.Core.Interfaces, Spring.Persistence.Core.Session,
   Spring.Data.ObjectDataSet,
 
-  ORM.Chinook.Artist, ORM.Chinook.Album, ORM.Chinook.Track,
-  ORM.Chinook.Employee, ORM.Chinook.Customer, ORM.Chinook.Invoice,
-  ORM.Chinook.MediaType, ORM.Chinook.Playlist, ORM.Chinook.PlaylistTrack,
-  ORM.Chinook.InvoiceLine, ORM.Chinook.Genre;
+  ORM.Chinook.Artist, ORM.Chinook.Album, ORM.Chinook.Track;
 
 type
   TfrmSpringPersistence = class(TForm)
-    dscMain: TDataSource;
+    dscMain : TDataSource;
 
   private
-    FConnection: IDBConnection;
-    FDatabase: TSQLiteDatabase;
-    //FProducts: IList<TProduct>;
-    FSession: TSession;
+    FConnection    : IDBConnection;
+    FDatabase      : TSQLiteDatabase;
+    FSession       : TSession;
     FObjectDataSet : TObjectDataSet;
     FDBGrid        : TDBGrid;
 
@@ -84,7 +80,6 @@ begin
   FTracks  := FSession.FindAll<TTrack>;
 
   FObjectDataSet          := TObjectDataset.Create(Self);
-  //FObjectDataSet.DataList := FArtists as IObjectList;
   FObjectDataSet.DataList := FTracks as IObjectList;
   FObjectDataSet.Active := True;
   AutoSizeDisplayWidths(FObjectDataSet);
@@ -92,13 +87,7 @@ begin
   dscMain.DataSet := FObjectDataSet;
   FDBGrid := TConceptFactories.CreateDBGrid(Self, Self, dscMain);
 
-  //ShowMessage(AsPropString(FArtists.First));
-
-
   ShowMessage(FTracks.First.Album.Artist.Name.Value);
-
-  //FProducts := TCollections.CreateObjectList<TProduct>(True);
-
 end;
 
 procedure TfrmSpringPersistence.BeforeDestruction;
@@ -108,6 +97,5 @@ begin
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
-
 
 end.

@@ -98,9 +98,9 @@
               BevelKind = bkFlat
               BevelOuter = bvNone
               Caption = 'Sample code'
-              Color = clSilver
+              Color = clWhite
               Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
+              Font.Color = clBlue
               Font.Height = -11
               Font.Name = 'Tahoma'
               Font.Style = [fsBold]
@@ -144,15 +144,11 @@
           Top = 3
           Width = 744
           Height = 379
-          ActivePage = tsColors
+          ActivePage = tsHighlighter
           Align = alClient
           TabOrder = 0
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object pnlHighlighter: TPanel
               Left = 153
               Top = 0

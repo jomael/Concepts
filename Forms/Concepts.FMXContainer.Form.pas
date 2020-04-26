@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -53,8 +53,6 @@ implementation
 {$R *.dfm}
 
 uses
-  Concepts.ComponentInspector,
-
   Concepts.FireMonkey.Form;
 
 {$REGION 'construction and destruction'}

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  System.ImageList, System.Threading,
+  System.Threading, System.ImageList,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
   Vcl.StdCtrls, Vcl.ExtCtrls,
 
@@ -101,7 +101,7 @@ implementation
 uses
   System.Diagnostics,
 
-  DDuce.Components.Factories, DDuce.RandomData;
+  DDuce.Components.Factories;
 
 resourcestring
   STaskStarted                  = 'Task %d started.';
@@ -120,6 +120,7 @@ begin
   FLog := TDDuceComponents.CreateLogTree(Self, pnlLog);
   FLog.DateTimeFormat := 'hh:nn:ss.zzz';
   FLog.Images := imlMain;
+  FLog.AutoLogLevelColors := False;
   FTasks := TCollections.CreateInterfaceList<ITask>;
 end;
 

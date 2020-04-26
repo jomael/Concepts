@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ unit Concepts.System.AnonymousMethods.Form;
 { Form demonstrating the variable (not value) capturing by anonymous methods.
   The scope is limited to only the routine where the anonymous method is
   defined, and not any other data in scope from that routine (as I thought at
-  first was the case).
- }
+  first was the case). }
 
 interface
 
@@ -49,12 +48,6 @@ uses
   show a technique for capturing the value of the SR.Name field and not the
   whole SR variable. This will eliminate the race on the SR variable because
   the anonymous method body will no longer need to access it.
-
-  Value capturing is a little more manual, but through the use of generic methods
-  and a corresponding generic class, we only need to create this code once. The
-  idea is to add an overloaded BeginInvoke() method that takes an extra parameter,
-  which will be the value we want to capture and pass along to the anonymous
-  method. Here’s the new BeginInvoke method:
 }
 
 type

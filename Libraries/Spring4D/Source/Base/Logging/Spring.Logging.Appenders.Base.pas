@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -131,6 +131,8 @@ begin
     TLogEventType.SerializedData,
     TLogEventType.CallStack:
       Result := event.Msg;
+    TLogEventType.Value:
+      Result := event.Msg + ': ' + event.Data.ToString;
 
     TLogEventType.Entering:
       Result := FormatEntering(event.ClassType, event.Msg);

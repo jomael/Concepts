@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,9 +36,7 @@ uses
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
   DSharp.Bindings, DSharp.Windows.CustomPresenter,
 
-  Spring.Collections, Spring.Reflection,
-
-  Concepts.Resources;
+  Spring.Collections, Spring.Reflection;
 
 type
   TfrmTreeViewPresenterTree = class(TForm)
@@ -86,7 +84,7 @@ uses
 
   Spring.Collections.Adapters, Spring.Collections.Enumerable,
 
-  DDuce.Reflect,
+  DDuce.Reflect, DDuce.Factories.zObjInspector,
 
   Concepts.RTTEye.RttiTemplates, Concepts.Factories;
 
@@ -99,7 +97,7 @@ begin
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FTVP.UseColumnDefinitions := True;
   FTVP.TreeView := FVST;
-  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FOI := TzObjectInspectorFactory.Create(Self, pnlLeftTop, FTVP);
 end;
 
 procedure TfrmTreeViewPresenterTree.BeforeDestruction;

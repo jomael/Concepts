@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ uses
 
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-  DDuce.Logger, DDuce.Factories,
+  DDuce.Logger, DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees,
   DDuce.Editor.Utils;
 
 resourcestring
@@ -200,7 +200,7 @@ var
 procedure TfrmFilter.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TFactories.CreateVirtualStringTree(Self, pnlView);
+  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlView);
   FVST.OnKeyPress := FVSTKeyPress;
   FVST.OnKeyUp := FVSTKeyUp;
   FTVP := TFactories.CreateTreeViewPresenter(Self, FVST);
@@ -216,10 +216,7 @@ begin
     Font.Assign(View.Editor.Font);
     Font.Size := 8;
   end;
-
-
   InitializeComponents;
-
 
 //  FTextStyle.SingleLine := True;
 //  FTextStyle.Opaque     := False;

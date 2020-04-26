@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ interface
 uses
   System.Actions, System.Classes, System.Win.TaskbarCore,
   Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ExtCtrls,
-  Vcl.ComCtrls, Vcl.Taskbar, Vcl.JumpList,
+  Vcl.ComCtrls, Vcl.Taskbar,
 
   VirtualTrees,
 
@@ -52,6 +52,7 @@ type
     procedure actExecuteExecute(Sender: TObject);
     procedure actExecuteModalExecute(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
+    procedure actCenterMainFormExecute(Sender: TObject);
 
     procedure edtFilterKeyDown(
       Sender  : TObject;
@@ -64,7 +65,6 @@ type
       Shift   : TShiftState
     );
     procedure edtFilterChange(Sender: TObject);
-    procedure actCenterMainFormExecute(Sender: TObject);
 
   private
     FVKPressed : Boolean;
@@ -267,7 +267,7 @@ end;
 
 procedure TfrmMain.FTVPDoubleClick(Sender: TObject);
 begin
-  ConceptManager.Execute(FTVP.SelectedItem);
+  ConceptManager.Execute(FTVP.SelectedItem, False);
 end;
 
 procedure TfrmMain.FTVPFilter(Item: TObject; var Accepted: Boolean);

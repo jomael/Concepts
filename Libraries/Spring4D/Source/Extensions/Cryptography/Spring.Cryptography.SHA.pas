@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -528,7 +528,7 @@ begin
   Inc(md.length, md.curlen shl 3);
   md.buf[md.curlen] := $80;
   Inc(md.curlen);
-  if (md.curlen >= 56) then
+  if (md.curlen > 56) then
   begin
     while md.curlen < 64 do
     begin
@@ -629,7 +629,7 @@ begin
   Inc(md.length, md.curlen shl 3);
   md.buf[md.curlen] := $80;
   Inc(md.curlen);
-  if (md.curlen >= 112) then
+  if (md.curlen > 112) then
   begin
     while md.curlen < 128 do
     begin

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ uses
   Spring.Logging.Appenders,
 
   DDuce.Logging.Appenders.WinIPC, DDuce.Logging.Appenders.LogTree,
-
   DDuce.Components.PropertyInspector, DDuce.Components.Logtree;
 
 type
@@ -65,7 +64,9 @@ type
     imlLogLevels       : TImageList;
     imlMain            : TImageList;
     lblData            : TLabel;
+    lblHeader          : TLabel;
     lblMessage         : TLabel;
+    pnlHeader          : TPanel;
     pnlLeft            : TPanel;
     pnlLoggerInspector : TPanel;
     pnlRight           : TPanel;
@@ -73,8 +74,6 @@ type
     rgpLogLevel        : TRadioGroup;
     splVertical        : TSplitter;
     tsMain             : TTabSet;
-    pnlHeader          : TPanel;
-    lblHeader          : TLabel;
     {$ENDREGION}
 
     procedure actTrackThisExecute(Sender: TObject);
@@ -114,7 +113,7 @@ implementation
 uses
   System.Rtti,
 
-  Spring.Logging.Loggers, Spring.Logging.Serializers,
+  Spring.Logging.Loggers,
 
   DDuce.Reflect, DDuce.Components.Factories;
 
@@ -148,7 +147,6 @@ begin
   LP.EventTypes := LOG_ALL_EVENT_TYPES;
 
   // All appenders
-
   LP := FFileLogAppender as ILoggerProperties;
   LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;

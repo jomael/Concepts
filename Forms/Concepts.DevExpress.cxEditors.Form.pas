@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,14 +22,16 @@ unit Concepts.DevExpress.cxEditors.Form;
 
 interface
 
+{$IFDEF DEVEXPRESS}
+
 uses
   System.Classes, System.Actions,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
   Vcl.Graphics, Vcl.Menus,
 
-  cxGraphics, cxEdit, cxContainer, cxRichEdit, cxCheckBox, cxMemo, cxMaskEdit,
-  cxControls, cxTextEdit, cxInplaceContainer, cxVGrid, cxOI, cxClasses,
-  cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles;
+  cxGraphics, cxEdit, cxRichEdit, cxCheckBox, cxMaskEdit,
+  cxControls, cxTextEdit, cxOI, cxClasses,
+  cxButtons, dxStatusBar;
 
 type
   TfrmcxEditors = class(TForm)
@@ -132,7 +134,11 @@ type
     procedure ClearLog;
   end;
 
+{$ENDIF}
+
 implementation
+
+{$IFDEF DEVEXPRESS}
 
 {$R *.dfm}
 
@@ -335,5 +341,7 @@ begin
   AEdit.EditText := AValue;
 end;
 {$ENDREGION}
+
+{$ENDIF}
 
 end.

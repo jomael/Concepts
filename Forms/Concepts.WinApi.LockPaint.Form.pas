@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ implementation
 uses
   Winapi.Windows,
 
-  Concepts.Utils;
+  DDuce.Utils;
 
 {$REGION 'action handlers'}
 procedure TfrmLockPaint.actDrawExecute(Sender: TObject);

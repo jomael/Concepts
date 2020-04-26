@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ uses
 
   Spring,
 
-  DDuce.FormSettings,
+  DDuce.Settings.Form,
 
   DDuce.Editor.Interfaces, DDuce.Editor.Highlighters,
   DDuce.Editor.Tools.Settings, DDuce.Editor.Colors.Settings,

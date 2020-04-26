@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ type
   TEditorFactories = class sealed
   public
     class function CreateSettings(
-            AOwner    : TComponent;
+      AOwner          : TComponent;
       const AFileName : string = ''
     ): IEditorSettings;
 
@@ -46,11 +46,11 @@ type
      ): IEditorManager;
 
     class function CreateView(
-            AParent       : TWinControl;
-            AManager      : IEditorManager = nil;
-      const AName         : string = '';
-      const AFileName     : string = '';
-      const AHighlighter  : string = 'TXT'
+      AParent            : TWinControl;
+      AManager           : IEditorManager = nil;
+      const AName        : string = '';
+      const AFileName    : string = '';
+      const AHighlighter : string = 'TXT'
     ): IEditorView;
 
     class function CreateMainMenu(

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -82,9 +82,7 @@ implementation
 uses
   System.TypInfo, System.Rtti,
 
-  Concepts.Factories,
-
-  DDuce.Components.Factories;
+  DDuce.Factories.zObjInspector;
 
 {$R *.dfm}
 
@@ -98,10 +96,7 @@ begin
   FCTTop.OnTabDragDrop          := FCTTopTabDragDrop;
   FCTTop.OnNeedDragImageControl := FCTTopNeedDragImageControl;
 
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FCTTop;

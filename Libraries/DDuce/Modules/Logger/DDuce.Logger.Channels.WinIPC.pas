@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels.WinIPC;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Channels.WinIPC;
 
 interface
 
@@ -27,12 +27,12 @@ uses
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
-  TWinIPCChannel = class(TCustomLogChannel)
-  strict private
+  TWinIPCChannel = class(TCustomLogChannel, ILogChannel, IWinIPCChannel)
+  private
     FClient : TWinIPCClient; // sends to the server
     FBuffer : TMemoryStream;
 
-  strict protected
+  protected
     function GetConnected: Boolean; override;
 
   public
@@ -46,6 +46,9 @@ type
   end;
 
 implementation
+
+uses
+  Spring.Helpers;
 
 {$REGION 'construction and destruction'}
 procedure TWinIPCChannel.AfterConstruction;
@@ -75,7 +78,6 @@ end;
 function TWinIPCChannel.Connect: Boolean;
 begin
   Result := FClient.Connect;
-  Connected := True;
 end;
 
 function TWinIPCChannel.Disconnect: Boolean;
@@ -83,7 +85,6 @@ begin
   FClient.Connected := False;
   Result := True;
 end;
-
 
 {
   Data is streamed in following order:
@@ -102,28 +103,31 @@ var
   TextSize : Integer;
   DataSize : Integer;
 begin
-  if Active then
+  if Enabled then
   begin
-    if not Connected then
+    if not Connected and AutoConnect then
       Connect;
     if Connected then
     begin
       TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
-      FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.TimeStamp, SizeOf(TDateTime));
-      FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
+      FBuffer.WriteBuffer(AMsg.MsgType);
+      FBuffer.WriteBuffer(AMsg.LogLevel);
+      FBuffer.WriteBuffer(AMsg.Reserved1);
+      FBuffer.WriteBuffer(AMsg.Reserved2);
+      FBuffer.WriteBuffer(AMsg.TimeStamp);
+      FBuffer.WriteBuffer(TextSize);
       if TextSize > 0 then
         FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
       if AMsg.Data <> nil then
       begin
         DataSize := AMsg.Data.Size;
-        FBuffer.WriteBuffer(DataSize, SizeOf(Integer));
+        FBuffer.WriteBuffer(DataSize);
         AMsg.Data.Position := 0;
         FBuffer.CopyFrom(AMsg.Data, DataSize);
       end
       else
-        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // indicates empty stream
+        FBuffer.WriteBuffer(ZeroBuf); // indicates empty stream
       FClient.SendStream(FBuffer);
       Result := True;
     end

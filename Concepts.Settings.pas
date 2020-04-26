@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,12 +28,35 @@ uses
 type
   ISettings = interface
   ['{2C05F3B9-2416-4E4E-B336-13213554457C}']
-    function ReadString(const Section, Ident, Default: string): string;
-    procedure WriteString(const Section, Ident, Value: string);
-    function ReadInteger(const Section, Ident: string; Default: Longint): Longint;
-    procedure WriteInteger(const Section, Ident: string; Value: Longint);
-    function ReadBool(const Section, Ident: string; Default: Boolean): Boolean;
-    procedure WriteBool(const Section, Ident: string; Value: Boolean);
+    function ReadString(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : string = ''
+    ): string;
+    procedure WriteString(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : string);
+    function ReadInteger(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : Integer = 0
+    ) : Integer;
+    procedure WriteInteger(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : Integer
+    );
+    function ReadBool(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : Boolean = False
+    ) : Boolean;
+    procedure WriteBool(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : Boolean
+    );
   end;
 
 function Settings: ISettings;
@@ -53,16 +76,39 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
 
-    function ReadString(const Section, Ident, Default: string): string;
-    procedure WriteString(const Section, Ident, Value: string);
-    function ReadInteger(const Section, Ident: string; Default: Integer): Integer;
-    procedure WriteInteger(const Section, Ident: string; Value: Integer);
-    function ReadBool(const Section, Ident: string; Default: Boolean): Boolean;
-    procedure WriteBool(const Section, Ident: string; Value: Boolean);
+    function ReadString(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : string = ''
+    ): string;
+    procedure WriteString(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : string);
+    function ReadInteger(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : Integer = 0
+    ) : Integer;
+    procedure WriteInteger(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : Integer
+    );
+    function ReadBool(
+      const ASection : string;
+      const AIdent   : string;
+      const ADefault : Boolean = False
+    ) : Boolean;
+    procedure WriteBool(
+      const ASection : string;
+      const AIdent   : string;
+      const AValue   : Boolean
+    );
   end;
 
 var
-  FSettings: ISettings;
+  FSettings : ISettings;
 
 function Settings: ISettings;
 begin
@@ -76,7 +122,7 @@ procedure TSettings.AfterConstruction;
 var
   S : string;
 begin
-  inherited;
+  inherited AfterConstruction;
   S := ExtractFilePath(Application.ExeName) +
     ExtractFileName(ChangeFileExt(Application.ExeName, '.ini'));
   FIniFile := TIniFile.Create(S);
@@ -85,41 +131,41 @@ end;
 procedure TSettings.BeforeDestruction;
 begin
   FIniFile.Free;
-  inherited;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TSettings.ReadBool(const Section, Ident: string;
-  Default: Boolean): Boolean;
+function TSettings.ReadBool(const ASection, AIdent: string;
+  const ADefault: Boolean): Boolean;
 begin
-  Result := FIniFile.ReadBool(Section, Ident, Default);
+  Result := FIniFile.ReadBool(ASection, AIdent, ADefault);
 end;
 
-function TSettings.ReadInteger(const Section, Ident: string;
-  Default: Integer): Longint;
+function TSettings.ReadInteger(const ASection, AIdent: string;
+  const ADefault: Integer): Longint;
 begin
-  Result := FIniFile.ReadInteger(Section, Ident, Default);
+  Result := FIniFile.ReadInteger(ASection, AIdent, ADefault);
 end;
 
-function TSettings.ReadString(const Section, Ident, Default: string): string;
+function TSettings.ReadString(const ASection, AIdent, ADefault: string): string;
 begin
-  Result := FIniFile.ReadString(Section, Ident, Default);
+  Result := FIniFile.ReadString(ASection, AIdent, ADefault);
 end;
 
-procedure TSettings.WriteBool(const Section, Ident: string; Value: Boolean);
+procedure TSettings.WriteBool(const ASection, AIdent: string; const AValue: Boolean);
 begin
-  FIniFile.WriteBool(Section, Ident, Value);
+  FIniFile.WriteBool(ASection, AIdent, AValue);
 end;
 
-procedure TSettings.WriteInteger(const Section, Ident: string; Value: Integer);
+procedure TSettings.WriteInteger(const ASection, AIdent: string; const AValue: Integer);
 begin
-  FIniFile.WriteInteger(Section, Ident, Value);
+  FIniFile.WriteInteger(ASection, AIdent, AValue);
 end;
 
-procedure TSettings.WriteString(const Section, Ident, Value: string);
+procedure TSettings.WriteString(const ASection, AIdent, AValue: string);
 begin
-  FIniFile.WriteString(Section, Ident, Value);
+  FIniFile.WriteString(ASection, AIdent, AValue);
 end;
 {$ENDREGION}
 

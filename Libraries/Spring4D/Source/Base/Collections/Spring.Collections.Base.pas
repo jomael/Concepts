@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -381,8 +381,8 @@ type
     function GetValueType: PTypeInfo; virtual;
   {$ENDREGION}
     procedure AddInternal(const item: TGenericPair); override; final;
-    procedure KeyChanged(const Item: TKey; Action: TCollectionChangedAction); virtual;
-    procedure ValueChanged(const Item: T; Action: TCollectionChangedAction); virtual;
+    procedure KeyChanged(const item: TKey; action: TCollectionChangedAction); virtual;
+    procedure ValueChanged(const item: T; action: TCollectionChangedAction); virtual;
   public
     constructor Create; override;
 
@@ -496,6 +496,22 @@ type
     property Count: Integer read GetCount write SetCount;
     property Items[index: Integer]: T read GetItem write SetItem; default;
   end;
+
+const
+  CollectionNotificationMapping: array[TCollectionNotification] of TCollectionChangedAction = (
+{$IFDEF VER330}
+    caAdded,
+    caAdded,
+    caExtracted,
+    caExtracted,
+    caRemoved,
+    caRemoved
+{$ELSE}
+    caAdded,
+    caRemoved,
+    caExtracted
+{$ENDIF}
+  );
 
 implementation
 
@@ -804,8 +820,12 @@ begin
 end;
 
 function TEnumerableBase<T>.FirstOrDefault: T;
+var
+  defaultItem: T;
 begin
-  Result := FirstOrDefault(Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := FirstOrDefault(defaultItem);
 end;
 
 function TEnumerableBase<T>.FirstOrDefault(const defaultValue: T): T;
@@ -820,8 +840,12 @@ begin
 end;
 
 function TEnumerableBase<T>.FirstOrDefault(const predicate: TPredicate<T>): T;
+var
+  defaultItem: T;
 begin
-  Result := FirstOrDefault(predicate, Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := FirstOrDefault(predicate, defaultItem);
 end;
 
 function TEnumerableBase<T>.FirstOrDefault(const predicate: TPredicate<T>;
@@ -916,8 +940,12 @@ begin
 end;
 
 function TEnumerableBase<T>.LastOrDefault: T;
+var
+  defaultItem: T;
 begin
-  Result := LastOrDefault(Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := LastOrDefault(defaultItem);
 end;
 
 function TEnumerableBase<T>.LastOrDefault(const defaultValue: T): T;
@@ -930,8 +958,12 @@ begin
 end;
 
 function TEnumerableBase<T>.LastOrDefault(const predicate: TPredicate<T>): T;
+var
+  defaultItem: T;
 begin
-  Result := LastOrDefault(predicate, Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := LastOrDefault(predicate, defaultItem);
 end;
 
 function TEnumerableBase<T>.LastOrDefault(const predicate: TPredicate<T>;
@@ -1111,8 +1143,12 @@ begin
 end;
 
 function TEnumerableBase<T>.SingleOrDefault: T;
+var
+  defaultItem: T;
 begin
-  Result := SingleOrDefault(Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := SingleOrDefault(defaultItem);
 end;
 
 function TEnumerableBase<T>.SingleOrDefault(const defaultValue: T): T;
@@ -1130,8 +1166,12 @@ begin
 end;
 
 function TEnumerableBase<T>.SingleOrDefault(const predicate: TPredicate<T>): T;
+var
+  defaultItem: T;
 begin
-  Result := SingleOrDefault(predicate, Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := SingleOrDefault(predicate, defaultItem);
 end;
 
 function TEnumerableBase<T>.SingleOrDefault(const predicate: TPredicate<T>;
@@ -1147,7 +1187,7 @@ begin
 
   enumerator := GetEnumerator;
   if not enumerator.MoveNext then
-    Exit(Default(T));
+    Exit(defaultValue);
   found := False;
   repeat
     item := enumerator.Current;
@@ -1285,43 +1325,46 @@ function TEnumerableBase<T>.TryGetFirst(out value: T): Boolean;
 var
   enumerator: IEnumerator<T>;
 begin
-  Result := False;
   enumerator := GetEnumerator;
   if enumerator.MoveNext then
   begin
     value := enumerator.Current;
-    Result := True;
+    Exit(True);
   end;
+  value := Default(T);
+  Result := False;
 end;
 
 function TEnumerableBase<T>.TryGetFirst(out value: T; const predicate: TPredicate<T>): Boolean;
 var
   item: T;
 begin
-  Result := False;
   for item in Self do
-  begin
     if predicate(item) then
     begin
       value := item;
       Exit(True);
     end;
-  end;
+  value := Default(T);
+  Result := False;
 end;
 
 function TEnumerableBase<T>.TryGetLast(out value: T): Boolean;
 var
   enumerator: IEnumerator<T>;
+  item: T;
 begin
-  Result := False;
   enumerator := GetEnumerator;
   if enumerator.MoveNext then
   begin
     repeat
-      value := enumerator.Current;
+      item := enumerator.Current;
     until not enumerator.MoveNext;
-    Result := True;
+    value := item;
+    Exit(True);
   end;
+  value := Default(T);
+  Result := False;
 end;
 
 function TEnumerableBase<T>.TryGetLast(out value: T; const predicate: TPredicate<T>): Boolean;
@@ -1337,6 +1380,8 @@ begin
       Result := True;
     end;
   end;
+  if not Result then
+    value := Default(T);
 end;
 
 function TEnumerableBase<T>.TryGetSingle(out value: T): Boolean;
@@ -1344,7 +1389,6 @@ var
   enumerator: IEnumerator<T>;
   item: T;
 begin
-  Result := False;
   enumerator := GetEnumerator;
   if enumerator.MoveNext then
   begin
@@ -1352,9 +1396,11 @@ begin
     if not enumerator.MoveNext then
     begin
       value := item;
-      Result := True;
+      Exit(True);
     end;
   end;
+  value := Default(T);
+  Result := False;
 end;
 
 function TEnumerableBase<T>.TryGetSingle(out value: T;
@@ -1368,11 +1414,16 @@ begin
     if predicate(item) then
     begin
       if Result then
-        Exit(False);
+      begin
+        Result := False;
+        Break;
+      end;
       value := item;
       Result := True;
     end;
   end;
+  if not Result then
+    value := Default(T);
 end;
 
 function TEnumerableBase<T>.Where(
@@ -1392,8 +1443,6 @@ end;
 
 procedure TIteratorBase<T>.Dispose;
 begin
-  fCurrent := Default(T);
-  fState := STATE_FINISHED;
 end;
 
 function TIteratorBase<T>.MoveNext: Boolean;
@@ -1403,12 +1452,17 @@ begin
     STATE_RUNNING:
     begin
       if fState = STATE_ENUMERATOR then
+      begin
         Start;
+        fState := STATE_RUNNING;
+      end;
 
       if TryMoveNext(fCurrent) then
         Exit(True);
 
       Dispose;
+      fCurrent := Default(T);
+      fState := STATE_FINISHED;
     end;
   end;
   Result := False;
@@ -1416,7 +1470,6 @@ end;
 
 procedure TIteratorBase<T>.Start;
 begin
-  fState := STATE_RUNNING;
 end;
 
 {$ENDREGION}
@@ -1800,11 +1853,11 @@ begin
   Result := TypeInfo(T);
 end;
 
-procedure TMapBase<TKey, T>.KeyChanged(const Item: TKey;
-  Action: TCollectionChangedAction);
+procedure TMapBase<TKey, T>.KeyChanged(const item: TKey;
+  action: TCollectionChangedAction);
 begin
   if Assigned(fOnKeyChanged) and fOnKeyChanged.CanInvoke then
-    fOnKeyChanged.Invoke(Self, Item, Action)
+    fOnKeyChanged.Invoke(Self, item, action)
 end;
 
 function TMapBase<TKey, T>.Remove(const item: TGenericPair): Boolean;
@@ -1812,11 +1865,11 @@ begin
   Result := Remove(item.Key, item.Value);
 end;
 
-procedure TMapBase<TKey, T>.ValueChanged(const Item: T;
-  Action: TCollectionChangedAction);
+procedure TMapBase<TKey, T>.ValueChanged(const item: T;
+  action: TCollectionChangedAction);
 begin
   if Assigned(fOnValueChanged) and fOnValueChanged.CanInvoke then
-    fOnValueChanged.Invoke(Self, Item, Action)
+    fOnValueChanged.Invoke(Self, item, action)
 end;
 
 {$ENDREGION}
@@ -2155,21 +2208,27 @@ function TListBase<T>.TryGetFirst(out value: T): Boolean;
 begin
   Result := Count > 0;
   if Result then
-    value := Items[0];
+    value := Items[0]
+  else
+    value := Default(T);
 end;
 
 function TListBase<T>.TryGetLast(out value: T): Boolean;
 begin
   Result := Count > 0;
   if Result then
-    value := Items[Count - 1];
+    value := Items[Count - 1]
+  else
+    value := Default(T);
 end;
 
 function TListBase<T>.TryGetSingle(out value: T): Boolean;
 begin
   Result := Count = 1;
   if Result then
-    value := Items[0];
+    value := Items[0]
+  else
+    value := Default(T);
 end;
 
 {$ENDREGION}

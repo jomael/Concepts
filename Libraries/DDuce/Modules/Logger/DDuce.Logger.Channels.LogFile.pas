@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels.LogFile;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Channels.LogFile;
 
 interface
 
 uses
   System.Classes, System.SysUtils,
 
+  Spring,
+
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
-  TLogFileChannel = class(TCustomLogChannel)
-  strict private
+  TLogFileChannel = class(TCustomLogChannel, ILogChannel, ILogFileChannel)
+  private
     FRelativeIndent : Integer;
     FBaseIndent     : Integer;
     FShowHeader     : Boolean;
@@ -35,15 +37,28 @@ type
     FShowTime       : Boolean;
     FShowPrefix     : Boolean;
     FShowStrings    : Boolean;
-    FStreamWriter   : TStreamWriter;
-
-    procedure SetShowTime(const AValue: Boolean);
-    procedure SetShowDate(const Value: Boolean);
+    FStreamWriter   : Lazy<TStreamWriter>;
+    FFileName       : string;
+    FFileStream     : Lazy<TFileStream>;
 
     function Space(ACount: Integer): string;
     procedure UpdateIndentation;
     procedure WriteStrings(AStream: TStream);
     procedure WriteComponent(AStream: TStream);
+
+  protected
+    {$REGION 'property access methods'}
+    procedure SetShowTime(const AValue: Boolean);
+    procedure SetShowDate(const Value: Boolean);
+    function GetFileName: string;
+    procedure SetFileName(const Value: string);
+    function GetShowDate: Boolean;
+    function GetShowHeader: Boolean;
+    function GetShowPrefix: Boolean;
+    function GetShowTime: Boolean;
+    procedure SetShowHeader(const Value: Boolean);
+    procedure SetShowPrefix(const Value: Boolean);
+    {$ENDREGION}
 
   public
     constructor Create(const AFileName: string = ''); reintroduce; virtual;
@@ -53,16 +68,19 @@ type
     function Write(const AMsg: TLogMessage): Boolean; override;
 
     property ShowHeader: Boolean
-      read FShowHeader write FShowHeader default False;
+      read GetShowHeader write SetShowHeader default False;
 
     property ShowPrefix: Boolean
-      read FShowPrefix write FShowPrefix default True;
+      read GetShowPrefix write SetShowPrefix default True;
 
     property ShowTime: Boolean
-      read FShowTime write SetShowTime default True;
+      read GetShowTime write SetShowTime default True;
 
     property ShowDate: Boolean
-      read FShowDate write SetShowDate default False;
+      read GetShowDate write SetShowDate default False;
+
+    property FileName: string
+      read GetFileName write SetFileName;
   end;
 
 implementation
@@ -73,43 +91,104 @@ uses
 
 {$REGION 'construction and destruction'}
 constructor TLogFileChannel.Create(const AFileName: string);
-var
-  S : string;
 begin
   inherited Create;
   if AFileName = '' then
   begin
-    S := ExtractFilePath(Application.ExeName)
+    FFileName := ExtractFilePath(Application.ExeName)
       + FormatDateTime('yyyymmdd hhnnss ', Now)
       + ExtractFileName(ChangeFileExt(Application.ExeName, '.log'));
   end
   else
-    S := AFileName;
+    FFileName := AFileName;
   FShowPrefix   := True;
   FShowDate     := False;
   FShowTime     := True;
   FShowStrings  := True;
-  FShowHeader   := True;
-  Active        := True;
-  FStreamWriter := TStreamWriter.Create(S, True); // Append
-  if FShowHeader then
-    FStreamWriter.WriteLine('============|Log Session Started at ' + DateTimeToStr(Now)
-      + ' by ' + Application.Title + '|============');
-  UpdateIndentation;
+  FShowHeader   := False;
+  Enabled       := False;
+  FFileStream.Create(function: TFileStream
+    begin
+      if not FileExists(FFileName) then
+        Result := TFileStream.Create(FFileName, fmCreate or fmShareDenyNone)
+      else
+        Result := TFileStream.Create(FFileName, fmOpenWrite or fmShareDenyNone);
+    end
+  );
+
+  FStreamWriter.Create(function: TStreamWriter
+    begin
+      Result := TStreamWriter.Create(FFileStream);
+      if FShowHeader then
+      begin
+        Result.WriteLine(
+          '============|Log Session Started at ' +
+          DateTimeToStr(Now) +
+          ' by ' +
+          Application.Title +
+          '|============'
+        );
+      end;
+      UpdateIndentation;
+    end
+  )
 end;
 
 procedure TLogFileChannel.BeforeDestruction;
 begin
-  FStreamWriter.Free;
+  //FFileStream.Free;
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
+function TLogFileChannel.GetFileName: string;
+begin
+  Result := FFileName;
+end;
+
+procedure TLogFileChannel.SetFileName(const Value: string);
+begin
+  if Value <> FileName then
+  begin
+    FFileName := Value;
+  end;
+end;
+
+function TLogFileChannel.GetShowDate: Boolean;
+begin
+  Result := FShowDate;
+end;
+
 procedure TLogFileChannel.SetShowDate(const Value: Boolean);
 begin
   FShowDate := Value;
   UpdateIndentation;
+end;
+
+function TLogFileChannel.GetShowHeader: Boolean;
+begin
+  Result := FShowHeader;
+end;
+
+procedure TLogFileChannel.SetShowHeader(const Value: Boolean);
+begin
+  FShowHeader := Value;
+end;
+
+function TLogFileChannel.GetShowPrefix: Boolean;
+begin
+  Result := FShowPrefix;
+end;
+
+procedure TLogFileChannel.SetShowPrefix(const Value: Boolean);
+begin
+  FShowPrefix := Value;
+end;
+
+function TLogFileChannel.GetShowTime: Boolean;
+begin
+  Result := FShowTime;
 end;
 
 procedure TLogFileChannel.SetShowTime(const AValue: Boolean);
@@ -149,7 +228,7 @@ begin
       AStream.Position := 0;
       SL.LoadFromStream(AStream);
       for I := 0 to SL.Count - 1 do
-        FStreamWriter.WriteLine(
+        FStreamWriter.Value.WriteLine(
           Space(FRelativeIndent + FBaseIndent) + SL.Strings[I]
         );
     finally
@@ -161,30 +240,29 @@ end;
 procedure TLogFileChannel.WriteComponent(AStream: TStream);
 begin
   AStream.Seek(0, soFromBeginning);
-  ObjectBinaryToText(AStream, FStreamWriter.BaseStream);
+  ObjectBinaryToText(AStream, FStreamWriter.Value.BaseStream);
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
 function TLogFileChannel.Write(const AMsg: TLogMessage): Boolean;
 begin
-  // Exit method identation must be set before
   if (AMsg.MsgType = Integer(lmtLeaveMethod)) and (FRelativeIndent >= 2) then
     Dec(FRelativeIndent, 2);
   if ShowDate then
-    FStreamWriter.Write(FormatDateTime('yyyy-mm-dd', AMsg.TimeStamp) + ' ');
+    FStreamWriter.Value.Write(FormatDateTime('yyyy-mm-dd', AMsg.TimeStamp) + ' ');
   if ShowTime then
-    FStreamWriter.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.TimeStamp) + ' ');
-  FStreamWriter.Write(Space(FRelativeIndent));
+    FStreamWriter.Value.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.TimeStamp) + ' ');
+  FStreamWriter.Value.Write(Space(FRelativeIndent));
   if ShowPrefix then
-    FStreamWriter.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
-  FStreamWriter.WriteLine(string(AMsg.Text));
+    FStreamWriter.Value.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
+  FStreamWriter.Value.WriteLine(string(AMsg.Text));
   if FShowStrings and (AMsg.Data <> nil) then
   begin
     case TLogMessageType(AMsg.MsgType) of
       lmtStrings, lmtCallStack, lmtHeapInfo, lmtException:
          WriteStrings(AMsg.Data);
-      lmtObject:
+      lmtComponent:
         WriteComponent(AMsg.Data);
     end;
   end;

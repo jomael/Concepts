@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls, Vcl.ActnList,
   Vcl.Bind.Grid, Data.Bind.Grid, Vcl.Grids, Vcl.Buttons, Vcl.Bind.Navigator,
-  Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData,
-  Data.Bind.ObjectScope, Data.Bind.Controls, Data.Bind.DBScope,
+  Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData, Data.Bind.Controls,
+  Data.Bind.ObjectScope, Data.Bind.DBScope,
 
   zObjInspector,
 
@@ -83,9 +83,9 @@ type
     procedure actAlterContactCompanyExecute(Sender: TObject);
 
   private
-    FObjectInspector   : TzObjectInspector;
-    FBindScope         : TBindScope;
-    FContact           : TContact;
+    FObjectInspector : TzObjectInspector;
+    FBindScope       : TBindScope;
+    FContact         : TContact;
 
     procedure AddComponents;
 
@@ -102,7 +102,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Components.Factories,
+  DDuce.Factories.zObjInspector,
 
   Concepts.Factories;
 
@@ -111,10 +111,7 @@ procedure TfrmLiveBindings.AfterConstruction;
 begin
   inherited AfterConstruction;
   AddComponents;
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.Component := lstBindings;
   FObjectInspector.ExpandAll;
   FBindScope := TBindScope.Create(Self);

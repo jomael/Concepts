@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -180,6 +180,9 @@ type
 
 
 implementation
+
+uses
+  Spring.Logging.ResourceStrings;
 
 
 {$REGION 'Internal test classes and helpers'}

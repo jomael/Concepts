@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ uses
   System.Classes, System.SysUtils,
   Vcl.ActnList,
 
-  DDuce.FormSettings;
+  DDuce.Settings.Form;
 
 const
   DEFAULT_WIDTH = 400;

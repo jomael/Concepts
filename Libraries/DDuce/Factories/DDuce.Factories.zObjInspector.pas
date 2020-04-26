@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
 
 unit DDuce.Factories.zObjInspector;
 
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.TypInfo,
   Vcl.Controls,
 
   zObjInspector, zValueManager;
@@ -42,7 +43,18 @@ implementation
 class function TzObjectInspectorFactory.Create(AOwner: TComponent;
   AParent: TWinControl; AObject: TObject; AValueManager: TzCustomValueManager;
   const AName: string): TzObjectInspector;
+var
+  OI: TzObjectInspector;
 begin
+  OI                  := TzObjectInspector.Create(AOwner, AValueManager);
+  OI.Parent           := AParent;
+  OI.Align            := alClient;
+  OI.AlignWithMargins := True;
+  OI.Name             := AName;
+  OI.Component        := AObject;
+  OI.ObjectVisibility := mvPublic;
+  OI.SplitterPos      := OI.ClientWidth div 2;
+  Result := OI;
 end;
 
 end.

@@ -208,7 +208,7 @@ begin
     '0'..'9':
       FToken := ScanNumber;
     '/':
-      if (FCurrentPos+1)^ in ['*', '/'] then
+      if CharInSet((FCurrentPos+1)^, ['*', '/']) then
         // ((P+1)^ = '/') = True; Ord(True) = 1; TCommnetType(1) = ctLineEnd;
         FToken := ScanComment(TCommentType(Ord((FCurrentPos+1)^ = '/')))
       else
@@ -222,6 +222,8 @@ begin
         FToken := ScanComment(ctLineEnd)
       else if IsStartQuote(FCurrentPos^) then
         FToken := ScanQuotedtSymbol
+      else if (FCurrentPos^ = '#') or (FCurrentPos^ = '##') then ////SQLServer Temp Table name - ONEIDE - 29/08/2016
+        FToken:= ScanSymbol
       else
         FToken := ScanOther;
   end;
@@ -244,7 +246,7 @@ function TgaBasicSQLParser.ScanComment(CommentType: TCommentType): TSQLToken;
 begin
   Inc(FCurrentPos, 2); // every comment starts with doublechar comment identifier
   if CommentType = ctLineEnd then
-    while not (FCurrentPos^ in [#10, #13]) do
+    while not CharInSet(FCurrentPos^, [#10, #13]) do
       Inc(FCurrentPos)
   else
     while not (((FCurrentPos-1)^ = '/') and ((FCurrentPos-2)^ = '*')) do
@@ -254,7 +256,7 @@ end;
 
 function TgaBasicSQLParser.ScanDelimitier: TSQLToken;
 begin
-  while (FCurrentPos^ in [#01..' ']) do
+  while CharInSet(FCurrentPos^, [#01..' ']) do
     Inc(FCurrentPos);
   Result := stDelimitier;
 end;
@@ -262,7 +264,7 @@ end;
 function TgaBasicSQLParser.ScanNumber: TSQLToken;
 begin
   Inc(FCurrentPos);
-  while FCurrentPos^ in ['0'..'9', '.', 'e', 'E', '+', '-'] do
+  while CharInSet(FCurrentPos^, ['0'..'9', '.', 'e', 'E', '+', '-']) do
     Inc(FCurrentPos);
   Result := stNumber;
 end;
@@ -300,7 +302,7 @@ begin
     raise Exception.CreateFmt('The type of quote %s<text>%s is unknown',  [QuoteInfo.StartDelimitier, QuoteInfo.EndDelimitier]);
   Inc(FCurrentPos);
   FTokenStart := FCurrentPos;
-  while not (FCurrentPos^ in [QuoteInfo.EndDelimitier, #0]) do
+  while not CharInSet(FCurrentPos^, [QuoteInfo.EndDelimitier, #0]) do
     Inc(FCurrentPos);
   if FCurrentPos^ = #0 then
     raise Exception.CreateFmt('No end quote (%s) found in SQL text for start quote (%s)', [QuoteInfo.EndDelimitier, QuoteInfo.StartDelimitier]);
@@ -338,17 +340,23 @@ begin
   if not SysLocale.FarEast then
   begin
     Inc(FCurrentPos);
-    while FCurrentPos^ in ['A'..'Z', 'a'..'z', '0'..'9', '_', '"', '$', #127..#255] do
+    while CharInSet(FCurrentPos^,  ['A'..'Z', 'a'..'z', '0'..'9', '_', '"', '$', #127..#255]) do
       Inc(FCurrentPos);
   end
   else begin
     while TRUE do
     begin
-      if (FCurrentPos^ in ['A'..'Z', 'a'..'z', '0'..'9', '_', '"', '$']) or
+      //SQLServer Temp Table name - ONEIDE - 29/08/2016
+      if (FCurrentPos^ = '#') or (FCurrentPos^ = '##') then
+      begin
+        Inc(FCurrentPos);
+      end
+      else
+      if CharInSet(FCurrentPos^, ['A'..'Z', 'a'..'z', '0'..'9', '_', '"', '$']) or
          IsKatakana(Byte(FCurrentPos^)) then
         Inc(FCurrentPos)
       else
-        if FCurrentPos^ in LeadBytes then
+        if CharInSet(FCurrentPos^, LeadBytes) then
           Inc(FCurrentPos, 2)
         else
           Break;

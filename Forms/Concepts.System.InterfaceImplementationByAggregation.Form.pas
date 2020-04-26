@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ unit Concepts.System.InterfaceImplementationByAggregation.Form;
   Why this object property is not a TInterfacedObject is explained in detail.
 
   Commented sections are to demonstrate what happens if the inner object holds
-  a reference to the outer object (and why it is not a good idea).
-}
+  a reference to the outer object (and why it is not a good idea). }
 
 interface
 
@@ -79,7 +78,7 @@ type
       (2) It would be wrong to make TInnerObject a TInterfacedObject, because
           then the reference count of the inner object would be incorrectly
           updated because the interface is referenced through the outer object.
-      (3) As an alternative to this setup, the so calles COM aggregation
+      (3) As an alternative to this setup, the so called COM aggregation
           pattern can be used. In this case the inner object descends from
           TAggregatedObject, which provides a special implementation of the 3
           IInterface methods in which the reference count of the outer object
@@ -91,6 +90,7 @@ type
 
 type
   TfrmInterfaceImplementationByAggregation = class(TForm)
+    {$REGION 'designer controls'}
     aclMain        : TActionList;
     actInnerMethod : TAction;
     actOuterMethod : TAction;
@@ -98,6 +98,7 @@ type
     btnOuterMethod : TButton;
     pnlHeader      : TPanel;
     lblHeader      : TLabel;
+    {$ENDREGION}
 
     procedure actInnerMethodExecute(Sender: TObject);
     procedure actOuterMethodExecute(Sender: TObject);

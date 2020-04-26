@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -107,9 +107,9 @@ type
 
   TReflectionData = class(TObject)
   private
-    FTypes : IList<TTypeData>;
-    FReflection : IReflection;
-    FFilter: string;
+    FTypes      : IList<TTypeData>;
+    FReflection : TType;
+    FFilter     : string;
 
     function GetName: string;
     procedure SetFilter(const Value: string);
@@ -139,7 +139,6 @@ uses
 procedure TReflectionData.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FReflection := TReflection.Create;
   FTypes := TCollections.CreateObjectList<TTypeData>;
 end;
 

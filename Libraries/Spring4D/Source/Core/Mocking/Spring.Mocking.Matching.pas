@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -322,7 +322,7 @@ const
     GetIndexFail, GetIndexOrdinal, GetIndexObject, GetIndexFail, GetIndexString,
     GetIndexString, GetIndexString, GetIndexVariant, GetIndexFail, GetIndexRecord,
     GetIndexInterface, GetIndexOrdinal, GetIndexArray, GetIndexString, GetIndexFail,
-    GetIndexFail, GetIndexFail);
+    GetIndexFail, GetIndexFail {$IF Declared(tkMRecord)}, GetIndexFail{$IFEND});
 begin
   Result := Handlers[TValueData(v).FTypeInfo.Kind](v);
 end;
@@ -334,7 +334,7 @@ const
     SetIndexFail, SetIndexOrdinal, SetIndexObject, SetIndexFail, SetIndexString,
     SetIndexString, SetIndexString, SetIndexVariant, SetIndexFail, SetIndexRecord,
     SetIndexInterface, SetIndexOrdinal, SetIndexArray, SetIndexString, SetIndexFail,
-    SetIndexFail, SetIndexFail);
+    SetIndexFail, SetIndexFail {$IF Declared(tkMRecord)}, SetIndexFail{$IFEND});
 begin
   Handlers[typeInfo.Kind](typeInfo, index, Result);
 end;

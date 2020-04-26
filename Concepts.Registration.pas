@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
   limitations under the License.
 }
 
-{$I Concepts.inc}
-
 unit Concepts.Registration;
 
 { Handles registration of all supported concept forms. }
@@ -24,6 +22,8 @@ interface
 
 uses
   Vcl.Graphics;
+
+{$I Concepts.inc}
 
 type
   TConcepts = record
@@ -43,7 +43,8 @@ type
 implementation
 
 uses
-  System.SysUtils,
+  Winapi.Windows,
+  System.SysUtils, System.Classes,
 
   {$REGION 'Concept form units'}
   {$IFDEF WINAPI}
@@ -55,6 +56,10 @@ uses
   {$IFDEF DELPHIX_SEATTLE_UP}
   Concepts.Vcl.RelativePanel.Form,
   {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FIREDAC}
+  Concepts.FireDAC.Form,
   {$ENDIF}
 
   {$IFDEF SYSTEM}
@@ -70,6 +75,8 @@ uses
   Concepts.System.StringList.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
+  Concepts.System.PublishedFields.Form,
+  Concepts.System.Interfaces.Form,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
@@ -99,10 +106,6 @@ uses
   Concepts.BTMemoryModule.Form,
   {$ENDIF}
 
-  {$IFDEF RTTEYE}
-  Concepts.RTTEye.Form,
-  {$ENDIF}
-
   {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form,
   {$ENDIF}
@@ -128,13 +131,25 @@ uses
   {$ENDIF}
   {$ENDREGION}
 
+  {$IFDEF SYNAPSE}
   Concepts.Synapse.Serial.Form,
+  {$ENDIF}
 
+  {$IFDEF INDY}
   Concepts.Indy.TCP.Form,
+  Concepts.Indy.Telnet.Form,
+  {$ENDIF}
 
+  {$IFDEF SYNEDIT}
   Concepts.SynEdit.Form,
+  {$ENDIF}
 
+  {$IFDEF VIRTUALTREES}
   Concepts.VirtualTreeView.Form,
+  {$ENDIF}
+
+  Concepts.SynMemoEx.Form,
+  Concepts.MQTT.Form,
 
   Concepts.FMXContainer.Form,
 
@@ -147,6 +162,31 @@ const
   SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
   VCL_CATEGORY_COLOR        = $00FFD9D9;
   WINAPI_CATEGORY_COLOR     = clWhite;
+
+procedure EnsureZMQLibExists;
+const
+  LIBZMQ = 'libzmq';
+var
+  LResStream  : TResourceStream;
+  LFileStream : TFileStream;
+  LPath       : string;
+begin
+  LPath := Format('%s\%s.dll', [ExtractFileDir(ParamStr(0)), LIBZMQ]);
+  if not FileExists(LPath) then
+  begin
+    LResStream := TResourceStream.Create(HInstance, LIBZMQ, RT_RCDATA);
+    try
+      LFileStream := TFileStream.Create(LPath, fmCreate);
+      try
+        LFileStream.CopyFrom(LResStream, 0);
+      finally
+        LFileStream.Free;
+      end;
+    finally
+      LResStream.Free;
+    end;
+  end;
+end;
 
 {$REGION 'private methods'}
 class procedure TConcepts.RegisterSpringConcepts;
@@ -185,7 +225,7 @@ begin
     TfrmObjectDataSet,
     'Persistence',
     'Spring',
-    'TObjectDataSet demo.',
+    'TObjectDataSet demo',
     FCategoryColor
   );
   ConceptManager.Register(
@@ -360,6 +400,20 @@ begin
     'Demonstrates some TStringList features.',
     FCategoryColor
   );
+  ConceptManager.Register(
+    TfrmPublishedFields,
+    'Published fields',
+    'System',
+    'Demonstrates a form with components without published fields.',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmInterfaces,
+    'Interfaces',
+    'System',
+    'Demonstrates how object interfaces work.',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 
@@ -422,6 +476,13 @@ begin
   );
   {$ENDIF}
 
+  ConceptManager.Register(
+    TfrmMQTTNode,
+    'MQTT',
+    'MQTT',
+    'MQTT demo.'
+  );
+
   {$IFDEF DDETOURS}
   ConceptManager.Register(
     TfrmDDetours,
@@ -440,12 +501,14 @@ begin
   );
   {$ENDIF}
 
+  {$IFDEF SYNEDIT}
   ConceptManager.Register(
     TfrmSynEdit,
     'SynEdit',
     'SynEdit',
     'Demonstrates the TSynEdit component'
   );
+  {$ENDIF}
 
   {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(
@@ -474,41 +537,60 @@ begin
   );
   {$ENDIF}
 
-  {$IFDEF RTTEYE}
-  ConceptManager.Register(
-    TfrmRTTEye,
-    'RTTEye',
-    'System',
-    'Reflection-like overview using the extended RTTI.'
-  );
-  {$ENDIF}
+//  ConceptManager.Register(
+//    TfrmRTTEye,
+//    'RTTEye',
+//    'System',
+//    'Reflection-like overview using the extended RTTI.'
+//  );
 
+  {$IFDEF SYNAPSE}
   ConceptManager.Register(
     TfrmSynapseSerial,
     'Synapse',
     'Serial',
     'Serial communication with the Synapse library.'
   );
+  {$ENDIF}
 
+  {$IFDEF INDY}
   ConceptManager.Register(
     TfrmIndyTCP,
-    'Indy',
     'TCP',
+    'Indy',
     'Indy TCP client'
   );
+  ConceptManager.Register(
+    TfrmIndyTelnet,
+    'Telnet',
+    'Indy',
+    'Indy Telnet client'
+  );
+  {$ENDIF}
 
+  {$IFDEF FMXCONTAINER}
   ConceptManager.Register(
     TfrmFMXContainer,
     'TFireMonkeyContainer',
     'FMXContainer',
     'Demonstrates the Parnassus TFireMonkeyContainer component.'
   );
+  {$ENDIF}
 
+  {$IFDEF VIRTUALTREES}
   ConceptManager.Register(
     TfrmVirtualTreeView,
     'Virtual treeview',
     'TVirtualStringTree',
     'Demonstrates the TVirtualStringTree component.'
+  );
+  {$ENDIF}
+
+  ConceptManager.Register(
+    TfrmSynMemoEx,
+    'SynMemoEx',
+    'TMemoEx',
+    'TMemoEx component from mORMot framework'
   );
 
   RegisterSpringConcepts;
@@ -519,5 +601,8 @@ begin
   RegisterWinApiConcepts;
  end;
 {$ENDREGION}
+
+initialization
+  EnsureZMQLibExists;
 
 end.

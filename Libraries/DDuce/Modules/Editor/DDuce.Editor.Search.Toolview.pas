@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -155,7 +155,8 @@ uses
 
   Spring.Collections,
 
-  DDuce.Components.Factories, DDuce.Factories,
+  DDuce.Components.Factories, DDuce.Factories.TreeViewPresenter,
+  DDuce.Factories.VirtualTrees,
 
   DDuce.Editor.Search.Engine, DDuce.Editor.Search.Data,
   DDuce.Editor.Search.Templates;
@@ -169,7 +170,7 @@ resourcestring
 procedure TfrmSearchForm.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TFactories.CreateVirtualStringTree(Self, pnlResultList);
+  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlResultList);
   FVST.TreeOptions.AutoOptions :=
     FVST.TreeOptions.AutoOptions + [toAutoSpanColumns] ;
   FVST.Header.MainColumn := 0;

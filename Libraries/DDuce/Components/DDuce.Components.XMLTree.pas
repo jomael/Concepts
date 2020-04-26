@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@
   - many bugfixes
 }
 
-unit DDuce.Components.XMLTree;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.XMLTree;
 
 interface
 
@@ -575,7 +575,6 @@ type
     property BevelKind;
     property BevelWidth;
     property Ctl3D;
-    property HintAnimation;
     property ParentCtl3D;
 
     property OnAdvancedHeaderDraw;
@@ -709,8 +708,6 @@ implementation
 
 uses
   TypInfo,
-
-
 
   DDuce.Components.XMLTree.Editors;
 
@@ -941,7 +938,7 @@ begin
   TreeOptions.AnimationOptions := DEFAULT_VST_ANIMATIONOPTIONS;
   TreeOptions.AutoOptions      := DEFAULT_VST_AUTOOPTIONS;
 
-  FNodeAttributes := TNodeAttributes.Create(Self, TNodeAttributesItem);
+  FNodeAttributes := TNodeAttributes.Create(Self);
   InitializeNodeAttributes;
 
   FExpandedState := TExpandedState.Create;
@@ -1192,8 +1189,8 @@ function TXMLTree.DoGetImageIndex(ANode: PVirtualNode; Kind: TVTImageKind;
   Column: TColumnIndex; var Ghosted: Boolean; var Index: TImageIndex)
   : TCustomImageList;
 begin
-  if (Column = Header.MainColumn) and (Kind in [ikNormal, ikSelected]) then
-    Index := Ord(GetData(ANode).NodeType);
+//  if (Column = Header.MainColumn) and (Kind in [ikNormal, ikSelected]) then
+//    Index := Ord(GetData(ANode).NodeType);
   Result := inherited DoGetImageIndex(ANode, Kind, Column, Ghosted, Index);
 end;
 
